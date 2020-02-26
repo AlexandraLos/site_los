@@ -1,4 +1,6 @@
 from django.db import models
+from django.urls import reverse
+
 
 class Category(models.Model):
     """Категории"""
@@ -13,6 +15,7 @@ class Category(models.Model):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
 
+
 class Ingredient(models.Model):
     """Состав продукта"""
     name = models.CharField("Название", max_length=100)
@@ -25,6 +28,7 @@ class Ingredient(models.Model):
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
 
+
 class Brand(models.Model):
     """Марка продукта"""
     name = models.CharField("Название", max_length=100)
@@ -36,6 +40,7 @@ class Brand(models.Model):
     class Meta:
         verbose_name = "Марка"
         verbose_name_plural = "Марки"
+
 
 class Type(models.Model):
     """Тип продукта"""
@@ -50,6 +55,7 @@ class Type(models.Model):
         verbose_name = "Тип"
         verbose_name_plural = "Типы"
 
+
 class Product(models.Model):
     """Продукт"""
     title = models.CharField("Название", max_length=100)
@@ -57,7 +63,7 @@ class Product(models.Model):
     image = models.ImageField("Картинка", upload_to="products/")
     country = models.CharField("Страна", max_length=30)
     brand = models.ManyToManyField(Brand, verbose_name="марка", related_name="product_brand")
-    ingredients = models.ManyToManyField(Ingredient, verbose_name="состав", related_name="product_ingredients")
+    ingredient = models.ManyToManyField(Ingredient, verbose_name="состав", related_name="product_ingredients")
     type = models.ManyToManyField(Type, verbose_name="вид")
     cost = models.PositiveIntegerField("Стоимость", default=0, help_text="стоимость в долларах")
     category = models.ForeignKey(Category, verbose_name="Категория", on_delete=models.SET_NULL, null=True)
@@ -67,9 +73,16 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse("product_detail", kwargs={"slug": self.url})
+
+    def get_review(self):
+        return self.review_set.filter(parent__isnull=True)
+
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+
 
 class ProductImages(models.Model):
     """Дополнительные фотографии продукта"""
@@ -85,6 +98,7 @@ class ProductImages(models.Model):
         verbose_name = "Фотография продукта"
         verbose_name_plural = "Фотографии продукта"
 
+
 class RatingStar(models.Model):
     """Звезда рейтинга"""
     value = models.SmallIntegerField("Значение", default=0)
@@ -97,11 +111,12 @@ class RatingStar(models.Model):
         verbose_name_plural = "Звезды рейтинга"
         ordering = ["-value"]
 
+
 class Rating(models.Model):
     """Рейтинг"""
     ip = models.CharField("IP адрес", max_length=15)
     star = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name="звезда")
-    movie = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="продукт")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="продукт")
 
     def __str__(self):
         return f"{self.star} - {self.product}"
@@ -110,13 +125,14 @@ class Rating(models.Model):
         verbose_name = "Рейтинг"
         verbose_name_plural = "Рейтинги"
 
+
 class Review(models.Model):
     """Отзывы"""
     email = models.EmailField()
     name = models.CharField("Имя", max_length=100)
     text = models.TextField("Сообщение", max_length=5000)
     parent = models.ForeignKey('self', verbose_name="родитель", on_delete=models.SET_NULL, blank=True, null=True)
-    movie = models.ForeignKey(Product, verbose_name="фильм", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, verbose_name="продукт", on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.name} - {self.product}"

@@ -1,0 +1,60 @@
+{% load product_tag %}
+<header class="header">
+    <div class="container-fluid px-lg-5">
+        <!-- nav -->
+        <nav class="py-4">
+            <div id="logo">
+                <h1> <a href="" class="editContent" style="outline: none; outline-offset: -2px; cursor: inherit;
+                color: rgb(255, 255, 255); font-size: 40px; background-color: rgba(0, 0, 0, 0);
+                font-family: &quot;Source Sans Pro&quot;, sans-serif;">COSMETICS EXPERT</a></h1>
+            </div>
+            <label for="drop" class="toggle">Меню</label>
+            <input type="checkbox" id="drop">
+            <ul class="menu mt-2">
+            {% if request.user.is_authenticated %}
+            <ul class="menu">
+                <li {% if section == "dashboard" %} class="selected"{% endif %}>
+                    <a href="{% url "dashboard" %}">My dashboard</a>
+                </li>
+                <li {% if section == "images" %}class="selected"{% endif %}>
+                    <a href="#">Images</a>
+                </li>
+                <li {% if section == "people" %}class="selected"{% endif %}>
+                    <a href="#">People</a>
+                </li>
+            </ul>
+        {% endif %}
+        <span class="user">
+        {% if request.user.is_authenticated %}
+            Hello, {{ request.user.first_name }},
+            <a href="{% url "logout" %}">Logout</a>
+        {% else %}
+            <a href="{% url "login" %}">Log-in</a>
+        {% endif %}
+    </span>
+                <li class="active"><a href="">Главная</a></li>
+                <li>
+                    <!-- First Tier Drop Down -->
+                    <label for="drop-2" class="toggle">Категории <span class="fa fa-angle-down" aria-hidden="true" >
+                    </span> </label>
+                    <a href="#">Категории <span class="fa fa-angle-down" aria-hidden="true"></span></a>
+                    <input type="checkbox" id="drop-2">
+                    <ul>
+                    {% get_categories as categories %}
+                    {% for category in categories %}
+                        <li><a href="/">{{ category.name }}</a></li>
+                    {% endfor %}
+             </ul>
+        </span>
+        </nav>
+        <!-- //nav -->
+    </div>
+</header>
+<!-- //header -->
+<!--/banner-->
+<div class="banner-info">
+    <p class="editContent" >лучший женский сайт</p>
+    <h3 class="mb-4 editContent">Все о косметике</h3>
+    <div class="ban-buttons"></div>
+</div>
+<!--// banner-inner -->
